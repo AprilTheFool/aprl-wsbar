@@ -1,0 +1,4 @@
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\AppBarHelper\obj\Release\net9.0\AppBarHelper.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\AppBarHelper\obj\Release\net9.0\AppBarHelper.AssemblyInfoInputs.cache
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\AppBarHelper\obj\Release\net9.0\AppBarHelper.AssemblyInfo.cs
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\AppBarHelper\obj\Release\net9.0\AppBarHelper.csproj.CoreCompileInputs.cache

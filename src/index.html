@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:;">
+    <link href="./styles.css" rel="stylesheet" />
+    <title>AECC - alpha</title>
+  </head>
+  <body>
+    <div class="main">
+      <div class="left">
+        <div class="tray">
+          <div class="icon">☰</div>
+        </div>
+      </div>
+      <div class="center">
+        <div class="music">
+          <img id="album-art" />
+          <span id="now-playing"></span>
+        </div>
+      </div>
+      <div class="right">
+        <div id="clock"></div>
+      </div>
+    </div>
+
+    <!-- You can also require other files to run in this process -->
+    <script src="./time.js"></script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
