@@ -85,8 +85,8 @@ function createTrayWindow() {
   trayWindow.setMovable(false);
 
   trayWindow.loadFile("tray.html");
-  // dev tools
-  mainWindow.webContents.openDevTools();
+    // dev tools
+  trayWindow.webContents.openDevTools();
   trayWindow.on("closed", () => {
     trayWindow = null;
   });
@@ -109,21 +109,24 @@ const smtcWorker = new Worker(path.join(__dirname, "media.js"));
 
 smtcWorker.on("message", (msg) => {
   if (msg.type === "media") {
-    mainWindow.webContents.send("now-playing", {
-      ...msg.mediaProps,
-      albumArt: msg.albumDataUrl
-    });
+    mainWindow.webContents.send("now-playing", msg.mediaProps);
   }
-
   if (msg.type === "playback") {
     mainWindow.webContents.send("playback-state", msg.playbackInfo);
   }
-
   if (msg.type === "initial") {
     mainWindow.webContents.send("initial-session", msg.current);
   }
 });
 
+smtcWorker.on("message", (msg) => {
+  if (msg.type === "media") {
+    mainWindow.webContents.send("now-playing", {
+      ...msg.mediaProps,
+      albumArt: msg.albumDataUrl,
+    });
+  }
+});
 
 ipcMain.on("tray-click", () => {
   toggleTrayWindow();

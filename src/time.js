@@ -15,7 +15,6 @@ function updateClock() {
   const timeString = `${hours}:${minutes} ${ampm}`;
 
   document.getElementById("clock").innerText = `${timeString}`;
-  document.getElementById("date").innerText = `${dateString}`;
 }
 
 // Update every second

@@ -2,36 +2,29 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com;"
-    />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:;">
     <link href="./styles.css" rel="stylesheet" />
     <title>AECC - alpha</title>
   </head>
   <body>
     <div class="main">
       <div class="left">
-        <div class="music" id="music-widget">
+        <div class="tray">
+          <div class="icon">☰</div>
+        </div>
+      </div>
+      <div class="center">
+        <div class="music">
+          <img id="album-art" />
           <span id="now-playing"></span>
         </div>
       </div>
-      <div class="center"></div>
       <div class="right">
-        <div class="divider"></div>
-        <div class="item" id="weather">
-          <span id="weather-emoji"></span>
-          <span id="weather-temp"></span>
-        </div>
-        <div class="divider"></div>
-        <div class="item" id="date"></div>
-        <div class="divider"></div>
-        <div class="item" id="clock"></div>
+        <div id="clock"></div>
       </div>
     </div>
 
     <!-- You can also require other files to run in this process -->
-    <script src="./weather.js"></script>
     <script src="./time.js"></script>
     <script src="./renderer.js"></script>
   </body>

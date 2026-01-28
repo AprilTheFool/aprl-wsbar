@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AppBarHelper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e0f68b537efcea29a9e341e009f018a88fd53cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+439a112d3608296d37dde90742502b1a667f2f4b")]
 [assembly: System.Reflection.AssemblyProductAttribute("AppBarHelper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AppBarHelper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

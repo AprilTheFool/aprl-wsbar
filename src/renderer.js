@@ -8,17 +8,17 @@
 
 
 
-// window.electronAPI.onNowPlaying((event, media) => {
-//   const nowPlayingEl = document.getElementById('now-playing');
-//   nowPlayingEl.innerText = `${media.title} - ${media.artist}`;
+window.electronAPI.onNowPlaying((event, media) => {
+  const nowPlayingEl = document.getElementById('now-playing');
+  nowPlayingEl.innerText = `${media.title} - ${media.artist}`;
 
-//   const albumImg = document.getElementById('album-art');
-//   if (media.albumArt) {
-//     albumImg.src = media.albumArt;
-//   } else {
-//     albumImg.src = ''; // or a default placeholder
-//   }
-// });
+  const albumImg = document.getElementById('album-art');
+  if (media.albumArt) {
+    albumImg.src = media.albumArt;
+  } else {
+    albumImg.src = ''; // or a default placeholder
+  }
+});
 
 
 
@@ -43,19 +43,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.electronAPI.toggleTray()
   })
 })
-
-
-const musicEl = document.getElementById("music-widget");
-const nowPlayingEl = document.getElementById("now-playing");
-
-window.electronAPI.onNowPlaying((_event, data) => {
-  if (data.albumArt) {
-    musicEl.style.backgroundImage = `url(${data.albumArt})`;
-  }
-
-  if (data.title && data.artist) {
-    nowPlayingEl.textContent = `${data.artist} – ${data.title}`;
-  } else if (data.title) {
-    nowPlayingEl.textContent = data.title;
-  }
-});
