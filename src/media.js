@@ -3,31 +3,52 @@ import { SMTCMonitor } from '@coooookies/windows-smtc-monitor';
 
 const monitor = new SMTCMonitor();
 
-// Listen for media metadata changes
-monitor.on('session-media-changed', (appId, mediaProps) => {
-  parentPort.postMessage({ type: 'media', appId, mediaProps });
-});
+function isSpotify(appId) {
+  if (!appId) return false;
 
-// Listen for playback state changes
+  return (
+    appId.includes('Spotify') ||
+    appId === 'Spotify.exe'
+  );
+}
+
+
+// Listen for media metadata changes
 monitor.on('session-playback-changed', (appId, playbackInfo) => {
-  parentPort.postMessage({ type: 'playback', appId, playbackInfo });
+  if (!isSpotify(appId)) return;
+
+  parentPort.postMessage({
+    type: 'playback',
+    appId,
+    playbackInfo
+  });
 });
 
 // Optionally send initial current session
 const current = SMTCMonitor.getCurrentMediaSession();
-if (current) {
-  parentPort.postMessage({ type: 'initial', current });
+if (current && isSpotify(current.appId)) {
+  parentPort.postMessage({
+    type: 'initial',
+    current
+  });
 }
 
+
 monitor.on('session-media-changed', (appId, mediaProps) => {
-    let albumDataUrl = null;
+  if (!isSpotify(appId)) return;
 
-    if (mediaProps.thumbnail) {
-        // Convert Buffer / Uint8Array to base64
-        const base64 = Buffer.from(mediaProps.thumbnail).toString('base64');
-        albumDataUrl = `data:image/png;base64,${base64}`;
-    }
+  let albumDataUrl = null;
 
-    // Send the media info + album art to main process
-    parentPort.postMessage({ type: 'media', appId, mediaProps, albumDataUrl });
+  if (mediaProps.thumbnail) {
+    const base64 = Buffer.from(mediaProps.thumbnail).toString('base64');
+    albumDataUrl = `data:image/png;base64,${base64}`;
+  }
+
+  parentPort.postMessage({
+    type: 'media',
+    appId,
+    mediaProps,
+    albumDataUrl
+  });
 });
+

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 class Program
 {
@@ -38,10 +39,45 @@ class Program
     [DllImport("user32.dll")]
     static extern int GetSystemMetrics(int nIndex);
 
-    static void Main()
+    [DllImport("user32.dll")]
+    static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    static extern bool keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
+
+    const uint WM_LBUTTONDOWN = 0x0201;
+    const uint WM_LBUTTONUP = 0x0202;
+    const byte VK_LWIN = 0x5B;
+    const byte VK_B = 0x42;
+    const uint KEYEVENTF_KEYUP = 0x2;
+
+    static void Main(string[] args)
     {
         SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        
+        // Check if user wants to open system tray
+        if (args.Length > 0 && args[0] == "--tray")
+        {
+            OpenSystemTray();
+            return;
+        }
+        
         Application.Run(new AppBarForm());
+    }
+
+    static void OpenSystemTray()
+    {
+        // Send Windows key + B hotkey to open the system tray
+        keybd_event(VK_LWIN, 0, 0, 0);
+        System.Threading.Thread.Sleep(50);
+        keybd_event(VK_B, 0, 0, 0);
+        System.Threading.Thread.Sleep(50);
+        keybd_event(VK_B, 0, KEYEVENTF_KEYUP, 0);
+        System.Threading.Thread.Sleep(50);
+        keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
     }
 
     class AppBarForm : Form
