@@ -44,6 +44,102 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
+function setTrayProfileImage(imageSource) {
+  if (!imageSource) return;
+  const img = document.querySelector('.tray-profile-image img');
+  if (!img) return;
+
+  const trimmed = String(imageSource).trim();
+  if (!trimmed) return;
+
+  img.src = trimmed;
+}
+
+window.electronAPI.onProfileImage((_event, imagePath) => {
+  setTrayProfileImage(imagePath);
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!window.electronAPI.getProfileImage) return;
+  try {
+    const imagePath = await window.electronAPI.getProfileImage();
+    setTrayProfileImage(imagePath);
+  } catch (error) {
+    console.warn('Failed to load profile image:', error);
+  }
+});
+
+function updateSpeedTestResults(result) {
+  const pingEl = document.getElementById('speedtest-ping');
+  const downEl = document.getElementById('speedtest-download');
+  const upEl = document.getElementById('speedtest-upload');
+  const serverEl = document.getElementById('speedtest-server');
+
+  if (!pingEl || !downEl || !upEl || !serverEl) return;
+
+  if (!result) {
+    pingEl.textContent = '-- ms';
+    downEl.textContent = '-- Mbps';
+    upEl.textContent = '-- Mbps';
+    serverEl.textContent = '--';
+    return;
+  }
+
+  pingEl.textContent =
+    typeof result.pingMs === 'number' ? `${result.pingMs} ms` : '-- ms';
+  downEl.textContent =
+    typeof result.downloadMbps === 'number'
+      ? `${result.downloadMbps.toFixed(1)} Mbps`
+      : '-- Mbps';
+  upEl.textContent =
+    typeof result.uploadMbps === 'number'
+      ? `${result.uploadMbps.toFixed(1)} Mbps`
+      : '-- Mbps';
+  serverEl.textContent = result.serverName || '--';
+}
+
+window.electronAPI.onSpeedTestResult((_event, result) => {
+  updateSpeedTestResults(result);
+  const statusEl = document.getElementById('speedtest-status');
+  if (statusEl) {
+    statusEl.textContent = 'Last result';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const button = document.getElementById('speedtest-btn');
+  const statusEl = document.getElementById('speedtest-status');
+
+  if (!button || !statusEl || !window.electronAPI.runSpeedTest) return;
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    statusEl.textContent = 'Running...';
+
+    try {
+      const result = await window.electronAPI.runSpeedTest();
+
+      if (!result) {
+        statusEl.textContent = 'No result.';
+        updateSpeedTestResults(null);
+      } else if (result.status === 'running') {
+        statusEl.textContent = 'Already running.';
+      } else if (result.status === 'error') {
+        statusEl.textContent = result.message || 'Failed.';
+        updateSpeedTestResults(null);
+      } else {
+        statusEl.textContent = 'Complete';
+        updateSpeedTestResults(result);
+      }
+    } catch (error) {
+      statusEl.textContent = 'Failed.';
+      updateSpeedTestResults(null);
+    } finally {
+      button.disabled = false;
+    }
+  });
+});
+
 
 const musicEl = document.getElementById("music-widget");
 const nowPlayingEl = document.getElementById("now-playing");
@@ -58,4 +154,44 @@ window.electronAPI.onNowPlaying((_event, data) => {
   } else if (data.title) {
     nowPlayingEl.textContent = data.title;
   }
+});
+
+// System stats monitoring
+window.electronAPI.onSystemStats((_event, stats) => {
+  document.getElementById('cpu-usage').textContent = `CPU ${stats.cpu}%`;
+  document.getElementById('memory-usage').textContent = `MEM ${stats.memory}%`;
+  document.getElementById('network-usage').textContent = `↓${stats.rxMbps} ↑${stats.txMbps}`;
+});
+
+// Active window tracking
+window.electronAPI.onActiveWindow((_event, title) => {
+  document.getElementById('active-window').textContent = title;
+});
+
+// Ping status (tray only)
+window.electronAPI.onPingStatus((_event, payload) => {
+  if (!payload || !payload.results) return;
+
+  const dots = document.querySelectorAll('[data-ping-host]');
+  if (!dots.length) return;
+
+  const logEntries = [];
+
+  dots.forEach((dot) => {
+    const host = dot.getAttribute('data-ping-host');
+    if (!host) return;
+
+    const result = payload.results[host];
+    const isOnline = typeof result === 'object' ? result.ok : result;
+    const timeMs = typeof result === 'object' ? result.timeMs : null;
+    if (isOnline) {
+      dot.classList.add('is-online');
+    } else {
+      dot.classList.remove('is-online');
+    }
+
+    logEntries.push({ host, ok: !!isOnline, timeMs });
+  });
+
+  console.log('Ping results:', logEntries);
 });

@@ -1,6 +1,7 @@
 const LATITUDE = -25.5407;
 const LONGITUDE = 152.7049;
 const UPDATE_INTERVAL = 600000;
+const CACHE_DURATION = Infinity;
 
 const weatherCodeToEmoji = {
   0: "☀️", // Clear sky
@@ -33,21 +34,60 @@ const weatherCodeToEmoji = {
   99: "⛈️", // Thunderstorm with heavy hail
 };
 
-async function updateWeather() {
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m,weather_code&temperature_unit=celsius`;
-    const response = await fetch(url);
-    const data = await response.json();
+let lastWeatherData = null;
+let lastFetchTime = 0;
+let isFetching = false;
 
-    const temp = Math.round(data.current.temperature_2m);
+async function updateWeather(retryCount = 0) {
+
+  if (isFetching) return;
+  
+  if (lastWeatherData) {
+    displayWeather(lastWeatherData);
+    return;
+  }
+
+  try {
+    isFetching = true;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m,weather_code&temperature_unit=celsius`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    const temp = data.current.temperature_2m;
     const weatherCode = data.current.weather_code;
-    const emoji = weatherCodeToEmoji[weatherCode] || "🌡️";
+    
+    lastWeatherData = { temp, weatherCode };
+    lastFetchTime = Date.now();
+    isFetching = false;
+    
+    displayWeather(lastWeatherData);
+  } catch (error) {
+    isFetching = false;
+
+    if (lastWeatherData) {
+      displayWeather(lastWeatherData);
+    } else {
+      document.getElementById("weather-emoji").innerText = "?";
+      document.getElementById("weather-temp").innerText = "--°C";
+    }
+  }
+}
+
+function displayWeather(data) {
+  try {
+    const temp = Math.round(data.temp);
+    const emoji = weatherCodeToEmoji[data.weatherCode] || "🌡️";
 
     document.getElementById("weather-emoji").innerText = emoji;
     document.getElementById("weather-temp").innerText = `${temp}°C`;
   } catch (error) {
-    console.error("Failed to fetch weather:", error);
-    document.getElementById("weather-emoji").innerText = "❓";
+    document.getElementById("weather-emoji").innerText = "?";
     document.getElementById("weather-temp").innerText = "--°C";
   }
 }

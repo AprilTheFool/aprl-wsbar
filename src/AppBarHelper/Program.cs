@@ -2,6 +2,10 @@
 using System;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Security.Principal;
+using Microsoft.Win32;
 
 class Program
 {
@@ -54,30 +58,107 @@ class Program
     const byte VK_B = 0x42;
     const uint KEYEVENTF_KEYUP = 0x2;
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0].Equals("get-profile-image", StringComparison.OrdinalIgnoreCase))
+        {
+            var path = GetProfileImagePath();
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                Console.WriteLine(path);
+            }
+            return 0;
+        }
+
         SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         
-        // Check if user wants to open system tray
-        if (args.Length > 0 && args[0] == "--tray")
-        {
-            OpenSystemTray();
-            return;
-        }
-        
         Application.Run(new AppBarForm());
+        return 0;
     }
 
-    static void OpenSystemTray()
+    static string GetProfileImagePath()
     {
-        // Send Windows key + B hotkey to open the system tray
-        keybd_event(VK_LWIN, 0, 0, 0);
-        System.Threading.Thread.Sleep(50);
-        keybd_event(VK_B, 0, 0, 0);
-        System.Threading.Thread.Sleep(50);
-        keybd_event(VK_B, 0, KEYEVENTF_KEYUP, 0);
-        System.Threading.Thread.Sleep(50);
-        keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
+        try
+        {
+            var sid = WindowsIdentity.GetCurrent()?.User?.Value;
+            var valueNames = new[]
+            {
+                "Image1080",
+                "Image448",
+                "Image240",
+                "Image192",
+                "Image96",
+                "Image48",
+                "Image40",
+                "Image32"
+            };
+
+            if (!string.IsNullOrWhiteSpace(sid))
+            {
+                var registryKeys = new RegistryKey[]
+                {
+                    Registry.CurrentUser.OpenSubKey($@"Software\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}"),
+                    Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}"),
+                    Registry.Users.OpenSubKey($@"{sid}\Software\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}")
+                };
+
+                foreach (var key in registryKeys)
+                {
+                    if (key == null) continue;
+                    using (key)
+                    {
+                        foreach (var name in valueNames)
+                        {
+                            if (key.GetValue(name) is string candidate && File.Exists(candidate))
+                            {
+                                return candidate;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var fallbackDirs = new[]
+            {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft", "Windows", "AccountPictures"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "Windows", "AccountPictures"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "User Account Pictures"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "Windows", "AccountPictures")
+            };
+
+            foreach (var dir in fallbackDirs)
+            {
+                if (!Directory.Exists(dir)) continue;
+
+                var files = Directory.EnumerateFiles(dir, "*.*", SearchOption.TopDirectoryOnly)
+                    .Where(file => file.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                        || file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                        || file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                        || file.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
+                    .Select(file => new FileInfo(file))
+                    .OrderByDescending(info => info.LastWriteTimeUtc)
+                    .ToList();
+
+                if (!files.Any()) continue;
+
+                if (!string.IsNullOrWhiteSpace(sid))
+                {
+                    var sidMatch = files.FirstOrDefault(info => info.Name.Contains(sid, StringComparison.OrdinalIgnoreCase));
+                    if (sidMatch != null)
+                    {
+                        return sidMatch.FullName;
+                    }
+                }
+
+                return files[0].FullName;
+            }
+        }
+        catch
+        {
+            return null;
+        }
+
+        return null;
     }
 
     class AppBarForm : Form

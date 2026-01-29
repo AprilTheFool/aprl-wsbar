@@ -134,3 +134,19 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# vscode stuff
+.vscode
+
+# c# stuff
+src.sln
+AppBarHelper/bin/
+AppBarHelper/obj/
+AppBarHelper/**/*.exe
+AppBarHelper/**/*.dll
+AppBarHelper/**/*.pdb
+AppBarHelper/**/*.deps.json
+AppBarHelper/**/*.runtimeconfig.json
+
+# copilot instructions
+.github/copilot-instructions.md

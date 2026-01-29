@@ -2,22 +2,73 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: file:;">
     <link href="./styles.css" rel="stylesheet" />
     <title>Tray</title>
   </head>
   <body>
     <div class="tray-main">
-        <div class="tray-icons">hi</div>
-        <div class="scripts">
-            <div class="script-button"><a id="scriptPingGoogle">ping 8.8.8.8</a></div>
-            <div class="script-button"><a id="scriptRunSpeedtest">speedtest</a></div>
-            <div class="script-button"><a id="scriptSpicetify">spicetify upgrade</a></div>
+      <div class="tray-left">
+        <div class="tray-left-top">
+          <div class="tray-profile-image">
+            <img src="./assets/pfp.png" />
+          </div>
+          <div class="tray-profile-info">
+            april@neptune<br>
+            <span id="os-read">OS</span><br>
+            <span id="ip-read">IP</span><br>
+            <span id="cpu-read">CPU</span><br>
+            <span id="gpu-read">GPU</span><br>
+          </div>
         </div>
+        <div class="tray-left-middle">
+          <div class="tray-ping-info">
+            <div class="tray-ping-row">
+              <span class="status-dot is-offline" data-ping-host="8.8.8.8"></span>
+              <span>8.8.8.8</span>
+            </div>
+            <div class="tray-ping-row">
+              <span class="status-dot is-offline" data-ping-host="1.1.1.1"></span>
+              <span>1.1.1.1</span>
+            </div>
+            <div class="tray-ping-row">
+              <span class="status-dot is-offline" data-ping-host="aprl.online"></span>
+              <span>aprl.online</span>
+            </div>
+          </div>
+        </div>
+        <div class="tray-left-bottom">
+          <div class="tray-speedtest">
+            <div class="tray-speedtest-header">
+              <span id="speedtest-status">Idle</span>
+              <button id="speedtest-btn" type="button">Run</button>
+            </div>
+            <div class="tray-speedtest-results">
+              <div class="tray-speedtest-metric">
+                <span class="label">Ping</span>
+                <span id="speedtest-ping">-- ms</span>
+              </div>
+              <div class="tray-speedtest-metric">
+                <span class="label">Down</span>
+                <span id="speedtest-download">-- Mbps</span>
+              </div>
+              <div class="tray-speedtest-metric">
+                <span class="label">Up</span>
+                <span id="speedtest-upload">-- Mbps</span>
+              </div>
+              <div class="tray-speedtest-metric">
+                <span class="label">Server</span>
+                <span id="speedtest-server">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tray-right"></div>
     </div>
 
     <!-- You can also require other files to run in this process -->
-    <script src="./time.js"></script>
+    <script src="./hardware-display.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

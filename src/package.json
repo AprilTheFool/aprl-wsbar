@@ -20,6 +20,8 @@
     "electron": "^40.0.0"
   },
   "dependencies": {
-    "@coooookies/windows-smtc-monitor": "^1.0.12"
+    "@coooookies/windows-smtc-monitor": "^1.0.12",
+    "active-win": "^8.2.1",
+    "systeminformation": "^5.30.6"
   }
 }
