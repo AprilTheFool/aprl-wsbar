@@ -480,7 +480,7 @@ function createTrayWindow() {
     }
   });
   // hide tray window when you click outside of it, unless dev tools are open
-  trayWindow.webContents.openDevTools();
+  //trayWindow.webContents.openDevTools();
   trayWindow.on("blur", () => {
     if (
       trayWindow &&
