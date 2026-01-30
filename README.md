@@ -21,7 +21,7 @@
 
 ###
 
-<p align="left">This is my personal status bar for Windows 11, it uses Electron for the UI and C# for interacting with Windows.<br><br>This was made with myself in mind and is not designed to be used by anyone else, however it should mostly all work if you want to try it for whatever reason.<br>Please keep in mind there is very little in the way of configs so you will have to edit the source to change most things.<br><br>If you do try to use it for whatever reason and run into bugs, incompatibilites or features you think should be there, feel free to open an issue and I'd be happy to look at it ^-^<br>Or simply message me on Discord: aprilthefool</p>
+<p align="left">This is my personal status bar for Windows 11, it uses Electron for the UI and C# for interacting with Windows.<br><br>This was made with my own needs in mind and is not designed to be used by anyone else, however it should mostly work if you want to try it for whatever reason.<br>Please keep in mind there is very little in the way of configs so you will have to edit the source to change most things.<br><br>If you do try to use it for whatever reason and run into bugs, incompatibilites or features you think should be there, feel free to open an issue and I'd be happy to look at it ^-^<br>Or simply message me on Discord: aprilthefool</p>
 
 ###
 
