@@ -55,9 +55,14 @@ async function buildElectronApp() {
     "bin",
     "electron-packager.js",
   );
+  const iconPath = path.join(__dirname, "Assets", "ico.png");
 
   if (!fs.existsSync(packagerScript)) {
     throw new Error(`electron-packager not found at ${packagerScript}`);
+  }
+
+  if (!fs.existsSync(iconPath)) {
+    throw new Error(`icon not found at ${iconPath}`);
   }
 
   const ignore = [
@@ -77,6 +82,7 @@ async function buildElectronApp() {
     `--out=${buildDir}`,
     "--overwrite",
     "--prune=true",
+    `--icon=${iconPath}`,
     `--ignore=${ignore}`,
   ];
 

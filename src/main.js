@@ -10,6 +10,9 @@ const {
   screen,
   globalShortcut,
   ipcMain,
+  Tray,
+  Menu,
+  nativeImage,
 } = require("electron");
 const { spawn, exec, execFile } = require("child_process");
 const path = require("node:path");
@@ -25,6 +28,7 @@ const { initHardwareInfo } = require("./hardware-info");
 
 let mainWindow;
 let trayWindow;
+let trayIcon;
 let isBarHiddenForFullscreen = false;
 let lastMediaPath = null;
 let smtcWorker;
@@ -38,6 +42,7 @@ const appBarExePath = path.join(
   "./AppBarHelper/bin/Release/net8.0-windows/AppBarHelper.exe",
 );
 const commandLauncherPath = path.join(__dirname, "command-launcher.js");
+const trayIconPath = path.join(__dirname, "Assets", "ico.png");
 
 const defaultCommands = [
   {
@@ -490,6 +495,36 @@ function createTrayWindow() {
   });
 }
 
+function createSystemTray() {
+  if (trayIcon) return;
+
+  const image = nativeImage.createFromPath(trayIconPath);
+  if (!image || image.isEmpty()) {
+    console.warn("Tray icon not found:", trayIconPath);
+    return;
+  }
+
+  trayIcon = new Tray(image);
+  trayIcon.setToolTip("aprl-wsbar");
+  trayIcon.setContextMenu(
+    Menu.buildFromTemplate([
+      {
+        label: "Restart",
+        click: () => {
+          app.relaunch();
+          app.exit(0);
+        },
+      },
+      {
+        label: "Quit",
+        click: () => {
+          app.quit();
+        },
+      },
+    ]),
+  );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //  visibility states for fullscreen stuff
 ////////////////////////////////////////////////////////////////////////////////
@@ -709,6 +744,7 @@ app.whenReady().then(async () => {
 
   createWindow();
   createTrayWindow();
+  createSystemTray();
 
   runPingChecks();
   pingInterval = setInterval(runPingChecks, 15000);
