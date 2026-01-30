@@ -1,37 +1,40 @@
+// weather widget uses open-meteo.com
+
+// move lat/long to config at some point
 const LATITUDE = -25.5407;
 const LONGITUDE = 152.7049;
-const UPDATE_INTERVAL = 600000;
+const UPDATE_INTERVAL = 600000; // 10 min
 const CACHE_DURATION = Infinity;
 
 const weatherCodeToEmoji = {
-  0: "☀️", // Clear sky
-  1: "🌤️", // Mainly clear
-  2: "⛅", // Partly cloudy
-  3: "☁️", // Overcast
-  45: "🌫️", // Fog
-  48: "🌫️", // Depositing rime fog
-  51: "🌦️", // Light drizzle
-  53: "🌦️", // Moderate drizzle
-  55: "🌧️", // Dense drizzle
-  56: "🌨️", // Light freezing drizzle
-  57: "🌨️", // Dense freezing drizzle
-  61: "🌧️", // Slight rain
-  63: "🌧️", // Moderate rain
-  65: "🌧️", // Heavy rain
-  66: "🌨️", // Light freezing rain
-  67: "🌨️", // Heavy freezing rain
-  71: "🌨️", // Slight snow
-  73: "🌨️", // Moderate snow
-  75: "❄️", // Heavy snow
-  77: "🌨️", // Snow grains
-  80: "🌦️", // Slight rain showers
-  81: "🌧️", // Moderate rain showers
-  82: "⛈️", // Violent rain showers
-  85: "🌨️", // Slight snow showers
-  86: "❄️", // Heavy snow showers
-  95: "⛈️", // Thunderstorm
-  96: "⛈️", // Thunderstorm with slight hail
-  99: "⛈️", // Thunderstorm with heavy hail
+  0: "☀️", // clear sky
+  1: "🌤️", // mainly clear
+  2: "⛅", // partly cloudy
+  3: "☁️", // overcast
+  45: "🌫️", // fog
+  48: "🌫️", // depositing rime fog
+  51: "🌦️", // light drizzle
+  53: "🌦️", // moderate drizzle
+  55: "🌧️", // dense drizzle
+  56: "🌨️", // light freezing drizzle
+  57: "🌨️", // dense freezing drizzle
+  61: "🌧️", // slight rain
+  63: "🌧️", // moderate rain
+  65: "🌧️", // heavy rain
+  66: "🌨️", // light freezing rain
+  67: "🌨️", // heavy freezing rain
+  71: "🌨️", // slight snow
+  73: "🌨️", // moderate snow
+  75: "❄️", // heavy snow
+  77: "🌨️", // snow grains
+  80: "🌦️", // slight rain showers
+  81: "🌧️", // moderate rain showers
+  82: "⛈️", // violent rain showers
+  85: "🌨️", // slight snow showers
+  86: "❄️", // heavy snow showers
+  95: "⛈️", // thunderstorm
+  96: "⛈️", // thunderstorm with slight hail
+  99: "⛈️", // thunderstorm with heavy hail
 };
 
 let lastWeatherData = null;
@@ -39,9 +42,8 @@ let lastFetchTime = 0;
 let isFetching = false;
 
 async function updateWeather(retryCount = 0) {
-
   if (isFetching) return;
-  
+  // reuse cache
   if (lastWeatherData) {
     displayWeather(lastWeatherData);
     return;

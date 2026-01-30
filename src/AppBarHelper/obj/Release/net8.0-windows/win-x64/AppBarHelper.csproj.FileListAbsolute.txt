@@ -1,0 +1,15 @@
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\win-x64\AppBarHelper.exe
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\win-x64\AppBarHelper.deps.json
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\win-x64\AppBarHelper.runtimeconfig.json
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\win-x64\AppBarHelper.dll
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\win-x64\AppBarHelper.pdb
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.AssemblyInfoInputs.cache
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.AssemblyInfo.cs
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.csproj.CoreCompileInputs.cache
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.sourcelink.json
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.dll
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\refint\AppBarHelper.dll
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.pdb
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\AppBarHelper.genruntimeconfig.cache
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\obj\Release\net8.0-windows\win-x64\ref\AppBarHelper.dll

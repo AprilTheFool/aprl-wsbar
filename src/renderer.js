@@ -1,31 +1,4 @@
-/**
- * This file is loaded via the <script> tag in the index.html file and will
- * be executed in the renderer process for that window. No Node.js APIs are
- * available in this process because `nodeIntegration` is turned off and
- * `contextIsolation` is turned on. Use the contextBridge API in `preload.js`
- * to expose Node.js functionality from the main process.
- */
-
-
-
-// window.electronAPI.onNowPlaying((event, media) => {
-//   const nowPlayingEl = document.getElementById('now-playing');
-//   nowPlayingEl.innerText = `${media.title} - ${media.artist}`;
-
-//   const albumImg = document.getElementById('album-art');
-//   if (media.albumArt) {
-//     albumImg.src = media.albumArt;
-//   } else {
-//     albumImg.src = ''; // or a default placeholder
-//   }
-// });
-
-
-
-window.electronAPI.onPlaybackState((event, state) => {
-  console.log('Playback state changed:', state.playbackStatus);
-});
-
+// push media updates to media widget
 window.electronAPI.onInitialSession((event, current) => {
   if (current && current.media) {
     document.getElementById('title').innerText = current.media.title;
@@ -33,18 +6,8 @@ window.electronAPI.onInitialSession((event, current) => {
   }
 });
 
-
-document.addEventListener('DOMContentLoaded', () => {
-  const trayButton = document.querySelector('.icon')
-
-  if (!trayButton) return
-
-  trayButton.addEventListener('click', () => {
-    window.electronAPI.toggleTray()
-  })
-})
-
 function setTrayProfileImage(imageSource) {
+  // apply profile image for trayWindow
   if (!imageSource) return;
   const img = document.querySelector('.tray-profile-image img');
   if (!img) return;
@@ -60,6 +23,7 @@ window.electronAPI.onProfileImage((_event, imagePath) => {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // request profile image when the page loads
   if (!window.electronAPI.getProfileImage) return;
   try {
     const imagePath = await window.electronAPI.getProfileImage();
@@ -70,6 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function updateSpeedTestResults(result) {
+  // push speedtest results to trayWindow
   const pingEl = document.getElementById('speedtest-ping');
   const downEl = document.getElementById('speedtest-download');
   const upEl = document.getElementById('speedtest-upload');
@@ -99,6 +64,7 @@ function updateSpeedTestResults(result) {
 }
 
 window.electronAPI.onSpeedTestResult((_event, result) => {
+  // cache last speedtest
   updateSpeedTestResults(result);
   const statusEl = document.getElementById('speedtest-status');
   if (statusEl) {
@@ -107,6 +73,7 @@ window.electronAPI.onSpeedTestResult((_event, result) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  // speedtest button
   const button = document.getElementById('speedtest-btn');
   const statusEl = document.getElementById('speedtest-status');
 
@@ -141,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadCommandsPanel() {
+  // commands from config (user/.aprl-wsbar/commands.json)
   const listEl = document.getElementById('commands-list');
   const pathEl = document.getElementById('commands-path');
   if (!listEl || !window.electronAPI.getCommandsConfig) return;
@@ -231,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
+// music widget
 const musicEl = document.getElementById("music-widget");
 const nowPlayingEl = document.getElementById("now-playing");
 
@@ -247,19 +215,19 @@ window.electronAPI.onNowPlaying((_event, data) => {
   }
 });
 
-// System stats monitoring
+// performance widget
 window.electronAPI.onSystemStats((_event, stats) => {
   document.getElementById('cpu-usage').textContent = `CPU ${stats.cpu}%`;
   document.getElementById('memory-usage').textContent = `MEM ${stats.memory}%`;
   document.getElementById('network-usage').textContent = `↓${stats.rxMbps} ↑${stats.txMbps}`;
 });
 
-// Active window tracking
+// active window tracking
 window.electronAPI.onActiveWindow((_event, title) => {
   document.getElementById('active-window').textContent = title;
 });
 
-// Ping status (tray only)
+// ping dots for trayWindow
 window.electronAPI.onPingStatus((_event, payload) => {
   if (!payload || !payload.results) return;
 

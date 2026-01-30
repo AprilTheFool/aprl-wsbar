@@ -18,12 +18,11 @@ async function getActiveWindowInfo() {
 function initWindowTracking(window, onActiveWindow) {
   mainWindow = window;
 
-  // Clear any existing interval
   if (trackingInterval) {
     clearInterval(trackingInterval);
   }
 
-  // Check active window every 500ms
+  // check focus every 500ms
   trackingInterval = setInterval(async () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       const info = await getActiveWindowInfo();
@@ -47,7 +46,7 @@ function initWindowTracking(window, onActiveWindow) {
     }
   }, 500);
 
-  // Send initial window title
+  // initial window title
   getActiveWindowInfo().then(info => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       const title = info?.title || '';
@@ -61,12 +60,11 @@ function initWindowTracking(window, onActiveWindow) {
     }
   });
 
-  // Clean up on window close
+  // clean up
   mainWindow.on('closed', () => {
     stopWindowTracking();
   });
 }
-
 function stopWindowTracking() {
   if (trackingInterval) {
     clearInterval(trackingInterval);

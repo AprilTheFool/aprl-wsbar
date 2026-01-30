@@ -20,7 +20,6 @@ function parseArgs(argv) {
 
 function launchAlacritty(command, cwd) {
   if (!command || typeof command !== "string") return false;
-
   const args = [
     "/c",
     "start",
@@ -48,5 +47,4 @@ try {
   const { command, cwd } = parseArgs(process.argv.slice(2));
   launchAlacritty(command, cwd || null);
 } catch (error) {
-  // no-op
 }

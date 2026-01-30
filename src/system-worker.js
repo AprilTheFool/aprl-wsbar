@@ -3,6 +3,7 @@ const si = require('systeminformation');
 
 async function getSystemStats() {
   try {
+    // fetch stats
     const [cpu, mem, networkStats] = await Promise.all([
       si.currentLoad(),
       si.mem(),
@@ -12,7 +13,7 @@ async function getSystemStats() {
     const cpuUsage = Math.round(cpu.currentLoad);
     const memUsage = Math.round((mem.used / mem.total) * 100);
     
-    // Network stats (bytes/sec converted to appropriate units)
+    // network stats, convert to mbps
     const netStats = networkStats.length > 0 ? networkStats[0] : { rx_sec: 0, tx_sec: 0 };
     const rxMbps = (netStats.rx_sec * 8 / 1000000).toFixed(1);
     const txMbps = (netStats.tx_sec * 8 / 1000000).toFixed(1);
@@ -34,13 +35,13 @@ async function getSystemStats() {
   }
 }
 
-// Poll every 3 seconds
+// check every 3 seconds
 setInterval(async () => {
   const stats = await getSystemStats();
   parentPort.postMessage(stats);
 }, 3000);
 
-// Send initial stats immediately
+// send initial stats
 getSystemStats().then(stats => {
   parentPort.postMessage(stats);
 });

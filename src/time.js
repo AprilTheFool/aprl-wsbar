@@ -1,7 +1,6 @@
 function updateClock() {
   const now = new Date();
 
-  // Hours in 12-hour format
   let hours = now.getHours();
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12;
@@ -14,10 +13,11 @@ function updateClock() {
   const dateString = `${day}/${month}`;
   const timeString = `${hours}:${minutes} ${ampm}`;
 
+  // push to time/date widget
   document.getElementById("clock").innerText = `${timeString}`;
   document.getElementById("date").innerText = `${dateString}`;
 }
 
-// Update every second
+// 1s
 setInterval(updateClock, 1000);
 updateClock();

@@ -3,6 +3,7 @@ const os = require('os');
 
 async function getHardwareInfo() {
   try {
+    // fetch hardware info in parallel
     const [osInfo, cpu, gpu] = await Promise.all([
       si.osInfo(),
       si.cpu(),
@@ -18,7 +19,7 @@ async function getHardwareInfo() {
       gpuName = gpu.controllers[0].model || 'Unknown GPU';
     }
 
-    // Get IP address from local network interfaces
+    // get ip address from local network interfaces
     let ipAddress = 'N/A';
     try {
       const interfaces = os.networkInterfaces();
@@ -57,6 +58,7 @@ async function getHardwareInfo() {
 let cachedHardwareInfo = null;
 
 async function initHardwareInfo() {
+  // initialize cache for fast access in the renderer
   console.log('Starting hardware info initialization...');
   try {
     cachedHardwareInfo = await getHardwareInfo();
@@ -75,6 +77,7 @@ async function initHardwareInfo() {
 }
 
 function getHardwareInfoSync() {
+  // return cached info or a loading placeholder
   console.log('getHardwareInfoSync called, cache:', cachedHardwareInfo);
   return cachedHardwareInfo || {
     os: 'Loading...',

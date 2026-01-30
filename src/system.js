@@ -7,7 +7,7 @@ let mainWindow;
 function initSystemMonitoring(window) {
   mainWindow = window;
 
-  // Create worker thread for system monitoring
+  // create worker thread
   systemWorker = new Worker(path.join(__dirname, 'system-worker.js'));
 
   systemWorker.on('message', (stats) => {
@@ -20,12 +20,11 @@ function initSystemMonitoring(window) {
     console.error('System worker error:', err);
   });
 
-  // Clean up on window close
+  // clean up
   mainWindow.on('closed', () => {
     stopSystemMonitoring();
   });
 }
-
 function stopSystemMonitoring() {
   if (systemWorker) {
     systemWorker.terminate();

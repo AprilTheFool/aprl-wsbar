@@ -1,9 +1,15 @@
+////////////////////////////////////////////////////////////////////////////////
+//  music widget listener
+////////////////////////////////////////////////////////////////////////////////
+
 import { parentPort } from 'worker_threads';
 import { SMTCMonitor } from '@coooookies/windows-smtc-monitor';
+// https://npm.io/package/@coooookies/windows-smtc-monitor
 
 const monitor = new SMTCMonitor();
 
 function isSpotify(appId) {
+  // spotify filter (change later to include other music players)
   if (!appId) return false;
 
   return (
@@ -13,7 +19,7 @@ function isSpotify(appId) {
 }
 
 
-// Listen for media metadata changes
+// listen for playback changes
 monitor.on('session-playback-changed', (appId, playbackInfo) => {
   if (!isSpotify(appId)) return;
 
@@ -24,7 +30,7 @@ monitor.on('session-playback-changed', (appId, playbackInfo) => {
   });
 });
 
-// Optionally send initial current session
+// send initial session if it exists
 const current = SMTCMonitor.getCurrentMediaSession();
 if (current && isSpotify(current.appId)) {
   parentPort.postMessage({
@@ -34,6 +40,7 @@ if (current && isSpotify(current.appId)) {
 }
 
 
+// check metadata changes
 monitor.on('session-media-changed', (appId, mediaProps) => {
   if (!isSpotify(appId)) return;
 

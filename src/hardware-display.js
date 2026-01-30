@@ -1,10 +1,13 @@
-// Load hardware info into the tray
+
+////////////////////////////////////////////////////////////////////////////////
+//  load hardware info and display in trayWindow (.tray-profile-info)
+////////////////////////////////////////////////////////////////////////////////
+
 async function loadHardwareInfo() {
   try {
     console.log('Fetching hardware info...');
     const info = await window.electronAPI.getHardwareInfo();
     console.log('Hardware info received:', info);
-    
     displayHardwareInfo(info);
   } catch (error) {
     console.error('Error loading hardware info:', error);
@@ -15,6 +18,7 @@ async function loadHardwareInfo() {
   }
 }
 
+// push info to html
 function displayHardwareInfo(info) {
   document.getElementById('os-read').textContent = 'OS: ' + (info.os || 'N/A');
   document.getElementById('ip-read').textContent = 'IP: ' + (info.ip || 'N/A');
@@ -22,13 +26,13 @@ function displayHardwareInfo(info) {
   document.getElementById('gpu-read').textContent = 'GPU: ' + (info.gpu || 'N/A');
 }
 
-// Listen for hardware info updates from main process
+// listen for updates
 window.electronAPI.onHardwareInfo((_event, info) => {
   console.log('Received hardware info event:', info);
   displayHardwareInfo(info);
 });
 
-// Load on page load
+// run once page has finished loading
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', loadHardwareInfo);
 } else {

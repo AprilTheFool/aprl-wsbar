@@ -1,0 +1,5 @@
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\AppBarHelper.exe
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\AppBarHelper.dll
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\AppBarHelper.deps.json
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\AppBarHelper.runtimeconfig.json
+C:\Users\linde\OneDrive\Documents\aprl-wsbar\src\AppBarHelper\bin\Release\net8.0-windows\AppBarHelper.pdb
