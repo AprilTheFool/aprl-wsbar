@@ -32,10 +32,27 @@ let pingInterval;
 let lastPingResults = null;
 let speedTestInFlight = false;
 let lastSpeedTestPath = null;
+let commandsConfigPath = null;
 const appBarExePath = path.join(
   __dirname,
   "./AppBarHelper/bin/Release/net8.0-windows/AppBarHelper.exe",
 );
+const commandLauncherPath = path.join(__dirname, "command-launcher.js");
+
+const defaultCommands = [
+  {
+    label: "Open Repo",
+    command: "cd $env:USERPROFILE\\Documents\\aprl-wsbar; ls",
+  },
+  {
+    label: "Ping Cloudflare",
+    command: "ping 1.1.1.1 -n 4",
+  },
+  {
+    label: "Show IP",
+    command: "ipconfig",
+  },
+];
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +167,85 @@ async function loadLastSpeedTest() {
       console.warn("Failed to load speed test:", error);
     }
     return null;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//  command runner config
+////////////////////////////////////////////////////////////////////////////////
+
+async function ensureCommandsConfig() {
+  if (!commandsConfigPath) return;
+
+  try {
+    await fs.promises.mkdir(path.dirname(commandsConfigPath), { recursive: true });
+    await fs.promises.access(commandsConfigPath, fs.constants.F_OK);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn("Failed to access commands config:", error);
+      return;
+    }
+
+    try {
+      await fs.promises.writeFile(
+        commandsConfigPath,
+        JSON.stringify(defaultCommands, null, 2),
+        "utf8",
+      );
+    } catch (writeError) {
+      console.warn("Failed to create commands config:", writeError);
+    }
+  }
+}
+
+async function loadCommandsConfig() {
+  if (!commandsConfigPath) return [];
+
+  try {
+    const raw = await fs.promises.readFile(commandsConfigPath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((entry) => entry && typeof entry.command === "string")
+      .map((entry) => ({
+        label: typeof entry.label === "string" ? entry.label : entry.command,
+        command: entry.command,
+        cwd: typeof entry.cwd === "string" ? entry.cwd : null,
+      }));
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn("Failed to load commands config:", error);
+    }
+    return [];
+  }
+}
+
+function spawnAlacritty(command, cwd) {
+  if (!command || typeof command !== "string") return false;
+
+  try {
+    const child = spawn(process.execPath, [
+      commandLauncherPath,
+      "--command",
+      command,
+      "--cwd",
+      cwd || "",
+    ], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+      env: {
+        ...process.env,
+        ELECTRON_RUN_AS_NODE: "1",
+      },
+      cwd: cwd || undefined,
+    });
+
+    child.unref();
+    return true;
+  } catch (error) {
+    console.warn("Failed to launch Alacritty:", error);
+    return false;
   }
 }
 
@@ -473,18 +569,35 @@ ipcMain.handle("run-speedtest", async () => {
   speedTestInFlight = true;
 
   try {
-    const pingMs = await measurePingMs();
-    const downloadMbps = await measureDownloadMbps();
-    const uploadMbps = await measureUploadMbps();
-    const result = {
-      pingMs,
-      downloadMbps,
-      uploadMbps,
-      isp: null,
-      serverName: "Cloudflare",
-    };
-    await persistLastSpeedTest(result);
-    return result;
+    let lastResult = null;
+    let lastError = null;
+
+    for (let i = 0; i < 3; i += 1) {
+      try {
+        const pingMs = await measurePingMs();
+        const downloadMbps = await measureDownloadMbps();
+        const uploadMbps = await measureUploadMbps();
+        lastResult = {
+          pingMs,
+          downloadMbps,
+          uploadMbps,
+          isp: null,
+          serverName: "Cloudflare",
+        };
+      } catch (attemptError) {
+        lastError = attemptError;
+      }
+    }
+
+    if (!lastResult) {
+      return {
+        status: "error",
+        message: lastError?.message || "Speed test failed.",
+      };
+    }
+
+    await persistLastSpeedTest(lastResult);
+    return lastResult;
   } catch (error) {
     return {
       status: "error",
@@ -503,6 +616,63 @@ ipcMain.handle("get-hardware-info", () => {
   return info;
 });
 
+ipcMain.handle("get-commands-config", async () => {
+  const commands = await loadCommandsConfig();
+  return {
+    path: commandsConfigPath,
+    commands,
+  };
+});
+
+ipcMain.handle("run-command", async (_event, payload) => {
+  if (!payload || typeof payload.command !== "string") {
+    return { ok: false, message: "Invalid command." };
+  }
+
+  setImmediate(() => {
+    const ok = spawnAlacritty(payload.command, payload.cwd || null);
+    if (!ok) {
+      console.warn("Failed to launch Alacritty for command.");
+    }
+  });
+
+  return { ok: true, status: "launching" };
+});
+
+ipcMain.handle("open-system-tool", async (_event, tool) => {
+  const toolMap = {
+    "control-panel": { file: "control.exe", args: [] },
+    "windows-terminal": { file: "wt.exe", args: [] },
+    "registry-editor": { file: "regedit.exe", args: [] },
+    "system-variables": {
+      file: "rundll32.exe",
+      args: ["sysdm.cpl,EditEnvironmentVariables"],
+    },
+  };
+
+  const entry = toolMap[tool];
+  if (!entry) {
+    return { ok: false, message: "Unknown tool." };
+  }
+
+  return new Promise((resolve) => {
+    const launchFile = tool === "registry-editor" ? "powershell.exe" : "cmd.exe";
+    const launchArgs =
+      tool === "registry-editor"
+        ? ["-NoProfile", "-Command", "Start-Process regedit.exe -Verb RunAs"]
+        : ["/c", "start", "", entry.file, ...entry.args];
+
+    execFile(launchFile, launchArgs, { windowsHide: true }, (error) => {
+      if (error) {
+        console.warn("Failed to open system tool:", error);
+        resolve({ ok: false, message: error.message || "Failed to open." });
+        return;
+      }
+      resolve({ ok: true });
+    });
+  });
+});
+
 ////////////////////////////////////////////////////////////////////////////////
 //  lifecycle
 ////////////////////////////////////////////////////////////////////////////////
@@ -510,6 +680,8 @@ ipcMain.handle("get-hardware-info", () => {
 app.whenReady().then(async () => {
   lastMediaPath = path.join(app.getPath("userData"), "last-media.json");
   lastSpeedTestPath = path.join(app.getPath("userData"), "last-speedtest.json");
+  commandsConfigPath = path.join(app.getPath("home"), ".aprl-wsbar", "commands.json");
+  await ensureCommandsConfig();
 
   smtcWorker = new Worker(path.join(__dirname, "media.js"));
 

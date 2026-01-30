@@ -33,6 +33,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   toggleTray: () => ipcRenderer.send('toggle-tray'),
   getHardwareInfo: () => ipcRenderer.invoke('get-hardware-info'),
   getProfileImage: () => ipcRenderer.invoke('get-profile-image'),
-  runSpeedTest: () => ipcRenderer.invoke('run-speedtest')
+  runSpeedTest: () => ipcRenderer.invoke('run-speedtest'),
+  getCommandsConfig: () => ipcRenderer.invoke('get-commands-config'),
+  runCommand: (payload) => ipcRenderer.invoke('run-command', payload),
+  openSystemTool: (tool) => ipcRenderer.invoke('open-system-tool', tool)
 });
 

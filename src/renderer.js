@@ -140,6 +140,97 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+async function loadCommandsPanel() {
+  const listEl = document.getElementById('commands-list');
+  const pathEl = document.getElementById('commands-path');
+  if (!listEl || !window.electronAPI.getCommandsConfig) return;
+
+  listEl.innerHTML = '';
+  if (pathEl) pathEl.textContent = '';
+
+  try {
+    const config = await window.electronAPI.getCommandsConfig();
+    const commands = Array.isArray(config?.commands) ? config.commands : [];
+
+    if (pathEl && config?.path) {
+      pathEl.textContent = `Config: ${config.path}`;
+    }
+
+    if (!commands.length) {
+      const empty = document.createElement('div');
+      empty.className = 'tray-command-text';
+      empty.textContent = 'No commands configured.';
+      listEl.appendChild(empty);
+      return;
+    }
+
+    commands.forEach((entry) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'tray-command-button';
+
+      const label = document.createElement('span');
+      label.className = 'tray-command-label';
+      label.textContent = entry.label || entry.command;
+
+      const text = document.createElement('span');
+      text.className = 'tray-command-text';
+      text.textContent = entry.command;
+
+      button.appendChild(label);
+      button.appendChild(text);
+
+      button.addEventListener('click', async () => {
+        if (!window.electronAPI.runCommand) return;
+        const payload = {
+          command: entry.command,
+          cwd: entry.cwd || null,
+        };
+        try {
+          window.electronAPI.runCommand(payload).catch((error) => {
+            console.warn('Failed to run command:', error);
+          });
+        } catch (error) {
+          console.warn('Failed to run command:', error);
+        }
+      });
+
+      listEl.appendChild(button);
+    });
+  } catch (error) {
+    const errorEl = document.createElement('div');
+    errorEl.className = 'tray-command-text';
+    errorEl.textContent = 'Failed to load commands.';
+    listEl.appendChild(errorEl);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadCommandsPanel();
+
+  const refreshButton = document.getElementById('commands-refresh');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', () => {
+      loadCommandsPanel();
+    });
+  }
+
+  const footerButtons = document.querySelectorAll('[data-system-tool]');
+  if (footerButtons.length && window.electronAPI.openSystemTool) {
+    footerButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        const tool = button.getAttribute('data-system-tool');
+        if (!tool) return;
+        try {
+          await window.electronAPI.openSystemTool(tool);
+        } catch (error) {
+          console.warn('Failed to open system tool:', error);
+        }
+      });
+    });
+  }
+});
+
 
 const musicEl = document.getElementById("music-widget");
 const nowPlayingEl = document.getElementById("now-playing");

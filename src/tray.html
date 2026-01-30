@@ -63,8 +63,32 @@
             </div>
           </div>
         </div>
+        <div class="tray-left-footer">
+          <div class="tray-footer-buttons">
+            <button class="tray-footer-button" type="button" data-system-tool="control-panel" title="Open Control Panel" aria-label="Open Control Panel">
+              <img class="tray-footer-icon" src="./Assets/controlpanel.svg" alt="controlpane" />
+            </button>
+            <button class="tray-footer-button" type="button" data-system-tool="windows-terminal" title="Open Windows Terminal" aria-label="Open Windows Terminal">
+              <img class="tray-footer-icon" src="./Assets/terminal.svg" alt="terminal" />
+            </button>
+            <button class="tray-footer-button" type="button" data-system-tool="registry-editor" title="Open Registry Editor" aria-label="Open Registry Editor">
+              <img class="tray-footer-icon" src="./Assets/regedit.svg" alt="regedit" />
+            </button>
+            <button class="tray-footer-button" type="button" data-system-tool="system-variables" title="Open System Variables" aria-label="Open System Variables">
+              <img class="tray-footer-icon" src="./Assets/sysvars.svg" alt="sysvars" />
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="tray-right"></div>
+      <div class="tray-right">
+        <div class="tray-commands">
+          <div class="tray-commands-header">
+            <span>Scripts</span>
+            <button id="commands-refresh" type="button">Reload</button>
+          </div>
+          <div id="commands-list" class="tray-commands-list"></div>
+        </div>
+      </div>
     </div>
 
     <!-- You can also require other files to run in this process -->
