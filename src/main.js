@@ -713,6 +713,14 @@ ipcMain.handle("open-system-tool", async (_event, tool) => {
 ////////////////////////////////////////////////////////////////////////////////
 
 app.whenReady().then(async () => {
+  if (process.platform === "win32") {
+    app.setLoginItemSettings({
+      openAtLogin: true,
+      path: process.execPath,
+      args: [],
+    });
+  }
+
   lastMediaPath = path.join(app.getPath("userData"), "last-media.json");
   lastSpeedTestPath = path.join(app.getPath("userData"), "last-speedtest.json");
   commandsConfigPath = path.join(app.getPath("home"), ".aprl-wsbar", "commands.json");

@@ -204,6 +204,8 @@ const musicEl = document.getElementById("music-widget");
 const nowPlayingEl = document.getElementById("now-playing");
 
 window.electronAPI.onNowPlaying((_event, data) => {
+  if (!musicEl || !nowPlayingEl || !data) return;
+
   if (data.albumArt) {
     musicEl.style.backgroundImage = `url(${data.albumArt})`;
   }
